@@ -1,5 +1,6 @@
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 use typed_builder::TypedBuilder;
 
 use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
@@ -21,7 +22,8 @@ use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
 ///   "announce": true
 /// }
 /// ```
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, Constructor, TypedBuilder, PartialEq)]
 pub(crate) struct MulticastAnnounce {
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -70,7 +72,8 @@ pub(crate) struct MulticastAnnounce {
 ///   The fingerprint is only used to avoid self-discovering.
 ///
 ///   A response is only triggered when announce is true.
-#[derive(Debug, Serialize, Deserialize)]
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, TypedBuilder, PartialEq)]
 pub(crate) struct MulticastResponse {
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -102,6 +105,7 @@ pub(crate) struct MulticastResponse {
 ///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
 /// }
 /// ```
+#[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, TypedBuilder, PartialEq)]
 pub(crate) struct LegacyRegister {
     #[serde(flatten)]
@@ -123,7 +127,8 @@ pub(crate) struct LegacyRegister {
 ///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
 /// }
 /// ```
-#[derive(Serialize, Deserialize, TypedBuilder)]
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, TypedBuilder, PartialEq)]
 pub(crate) struct LegacyRegisterResponse {
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -134,15 +139,12 @@ pub(crate) struct LegacyRegisterResponse {
 mod tests {
     use serde_json::json;
 
-    use crate::messages::{
-        common_fields::{
-            Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload,
-            Protocol, Version,
-        },
-        discover::MulticastAnnounce,
+    use crate::messages::common_fields::{
+        Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload, Protocol,
+        Version,
     };
 
-    use super::{LegacyRegister, LegacyRegisterResponseBuilder};
+    use super::{LegacyRegister, LegacyRegisterResponse, MulticastAnnounce, MulticastResponse};
 
     #[test]
     fn multicast_announce_deserialize_serialize() {
@@ -185,6 +187,73 @@ mod tests {
     }
 
     #[test]
+    fn multicast_response_deserialize_serialize() {
+        let response_json_1 = json!(
+            {
+                "alias": "Secret Banana",
+                "version": "2.0",
+                "deviceModel": "Windows",
+                "deviceType": "desktop",
+                "fingerprint": "random string", // ignored in HTTPS mode
+                "port": 53317,
+                "protocol": "https",
+                "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+            }
+        );
+        let response_json_2 = json!(
+            {
+                "alias": "Secret Banana",
+                "version": "2.0",
+                "deviceModel": "Windows",
+                "deviceType": "desktop",
+                "fingerprint": "random string",
+                "port": 53317,
+                "protocol": "https",
+                "download": true,
+                "announce": false,
+            }
+        );
+        let constructed_response_1 = MulticastResponse::builder()
+            .device_info(DeviceInfo::new(
+                "Secret Banana".to_owned().into(),
+                "2.0".to_owned().into(),
+                Some("Windows".to_owned().into()),
+                DeviceType::Desktop,
+                "random string".to_owned().into(),
+            ))
+            .port(53317.into())
+            .protocol(Protocol::Https)
+            .download(Some(PreferDownload::new(true)))
+            .announce(None)
+            .build();
+        let constructed_response_2 = MulticastResponse::builder()
+            .device_info(DeviceInfo::new(
+                "Secret Banana".to_owned().into(),
+                "2.0".to_owned().into(),
+                Some("Windows".to_owned().into()),
+                DeviceType::Desktop,
+                "random string".to_owned().into(),
+            ))
+            .port(53317.into())
+            .protocol(Protocol::Https)
+            .download(Some(PreferDownload::new(true)))
+            .announce(Some(serde_bool::False))
+            .build();
+        // Deserialize
+        let read_response_1: MulticastResponse =
+            serde_json::from_value(response_json_1.clone()).unwrap();
+        assert_eq!(constructed_response_1, read_response_1);
+        let read_response_2: MulticastResponse =
+            serde_json::from_value(response_json_2.clone()).unwrap();
+        assert_eq!(constructed_response_2, read_response_2);
+        // Serialize
+        let written_response_json_1 = serde_json::to_value(constructed_response_1).unwrap();
+        assert_eq!(response_json_1, written_response_json_1);
+        let written_response_json_2 = serde_json::to_value(constructed_response_2).unwrap();
+        assert_eq!(response_json_2, written_response_json_2);
+    }
+
+    #[test]
     fn legacy_register_deserialize_serialize() {
         let request_json = json!(
             {
@@ -217,5 +286,38 @@ mod tests {
         // Serialize
         let written_multicast_announce_json = serde_json::to_value(constructed_request).unwrap();
         assert_eq!(request_json, written_multicast_announce_json);
+    }
+
+    #[test]
+    fn legacy_response_deserialize_serialize() {
+        let response_json = json!(
+            {
+              "alias": "Nice Orange",
+              "version": "2.0",
+              "deviceModel": "Samsung",
+              "deviceType": "mobile",
+              "fingerprint": "random string", // ignored in HTTPS mode
+              "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+            }
+        );
+        let constructed_response = LegacyRegisterResponse::builder()
+            .device_info(DeviceInfo::new(
+                Alias::new("Nice Orange".into()),
+                Version::new("2.0".into()),
+                Some("Samsung".to_owned().into()),
+                DeviceType::Mobile,
+                Fingerprint::new("random string".into()),
+            ))
+            .download(Some(PreferDownload::new(true)))
+            .build();
+
+        // Deserialize
+        let read_response: LegacyRegisterResponse =
+            serde_json::from_value(response_json.clone()).unwrap();
+        assert_eq!(constructed_response, read_response);
+        debug_assert_eq!(constructed_response, read_response);
+        // Serialize
+        let written_multicast_announce_json = serde_json::to_value(constructed_response).unwrap();
+        assert_eq!(response_json, written_multicast_announce_json);
     }
 }
