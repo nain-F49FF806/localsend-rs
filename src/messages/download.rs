@@ -15,10 +15,10 @@
 //!
 //!
 
-use super::{
-    common_fields::FilesInfoMap,
-    common_fields::{DeviceInfo, PreferDownload, SessionId},
-};
+use derive_more::derive::Constructor;
+use serde::{Deserialize, Serialize};
+
+use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId};
 
 /// 5.2 Receive Request (Metadata Only)
 ///
@@ -69,13 +69,104 @@ use super::{
 ///   }
 /// }
 /// ```
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
+#[serde(rename_all = "camelCase")]
 struct PreDownloadMeta {
-    info: PreDownloadInfo,
+    info: PreDownloadMetaInfo,
     session_id: SessionId,
     files: FilesInfoMap,
 }
 
-struct PreDownloadInfo {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
+struct PreDownloadMetaInfo {
+    #[serde(flatten)]
     device_info: DeviceInfo,
-    download: PreferDownload,
+    download: serde_bool::True,
+}
+
+#[cfg(test)]
+mod tests {
+    use std::collections::HashMap;
+
+    use mediatype::MediaTypeBuf;
+    use serde_json::json;
+
+    use crate::messages::common_fields::{DeviceInfo, DeviceType, FileId, FileInfo, FilesInfoMap};
+
+    use super::{PreDownloadMeta, PreDownloadMetaInfo};
+
+    #[test]
+    fn predownload_meta_deserialize_serialize() {
+        let response_json = json!(
+            {
+              "info": {
+                "alias": "Nice Orange",
+                "version": "2.0",
+                "deviceModel": "Samsung", // nullable
+                "deviceType": "mobile", // mobile | desktop | web | headless | server, nullable
+                "fingerprint": "random string", // ignored in HTTPS mode
+                "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+              },
+              "sessionId": "mySessionId",
+              "files": {
+                "some file id": {
+                  "id": "some file id",
+                  "fileName": "my image.png",
+                  "size": 324242, // bytes
+                  "fileType": "image/jpeg",
+                  "sha256": "*sha256 hash*", // nullable
+                  "preview": "*preview data*" // nullable
+                },
+                "another file id": {
+                  "id": "another file id",
+                  "fileName": "another image.jpg",
+                  "size": 1234,
+                  "fileType": "image/jpeg",
+                  "sha256": "*sha256 hash*",
+                  "preview": "*preview data*"
+                }
+              }
+            }
+        );
+        let info = PreDownloadMetaInfo::new(
+            DeviceInfo::new(
+                "Nice Orange".to_string().into(),
+                "2.0".to_string().into(),
+                Some("Samsung".to_string().into()),
+                DeviceType::Mobile,
+                "random string".to_string().into(),
+            ),
+            serde_bool::True,
+        );
+        let mut files_map: HashMap<FileId, FileInfo> = HashMap::new();
+        files_map.insert(
+            "some file id".to_string().into(),
+            FileInfo::new(
+                "some file id".to_string().into(),
+                "my image.png".to_string(),
+                324242,
+                MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
+                Some("*sha256 hash*".to_string().into()),
+                Some("*preview data*".to_string().into()),
+            ),
+        );
+        files_map.insert(
+            "another file id".to_string().into(),
+            FileInfo::new(
+                "another file id".to_string().into(),
+                "another image.jpg".to_string(),
+                1234,
+                MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
+                Some("*sha256 hash*".to_string().into()),
+                Some("*preview data*".to_string().into()),
+            ),
+        );
+        let files = FilesInfoMap::new(files_map);
+        let constructed_response =
+            PreDownloadMeta::new(info, "mySessionId".to_string().into(), files);
+        let read_response = serde_json::from_value(response_json.clone()).unwrap();
+        assert_eq!(constructed_response, read_response);
+        let written_response = serde_json::to_value(constructed_response).unwrap();
+        assert_eq!(response_json, written_response);
+    }
 }
