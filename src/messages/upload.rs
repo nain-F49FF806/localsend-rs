@@ -1,54 +1,35 @@
-//! Reverse File Transfer (HTTP) aka Download API
-//!
-//! This is an alternative method which should be used when LocalSend is not available on the receiver.
-//!
-//! The sender setups an HTTP server to send files to other members by providing a URL.
-//!
-//! The receiver then opens the browser with the given URL and downloads the file.
-//!
-//! It is important to note that the unencrypted HTTP protocol is used because browsers reject self-signed certificates.
-//! 5.1 Browser URL
-//!
-//! The receiver can open the following URL in the browser to download the file.
-//!
-//! `http://<sender-ip>:<sender-port>``
-//!
-//!
-
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
-use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId};
+use super::common_fields::{
+    DeviceInfo, FilesInfoMap, FilesTokenMap, Port, PreferDownload, Protocol, SessionId,
+};
 
-/// 5.2 Receive Request (Metadata Only)
+/// Upload request (Metadata Only)
 ///
-/// Send to the sender a request to get a list of file metadata.
+/// Sends only the metadata to the receiver.
 ///
-/// The downloader may add ?sessionId=mySessionId. In this case, the request should be accepted if it is the same session.
-///
-/// This is needed if the user refreshes the browser page.
+/// The receiver will decide if this request gets accepted, partially accepted or rejected.
 ///
 /// If a PIN is required, the query parameter ?pin=123456 should be added.
 ///
-/// `POST /api/localsend/v2/prepare-download`
+/// `POST /api/localsend/v2/prepare-upload`
 ///
 /// Request
-/// ```json
-/// No body
-/// ```
-/// Response
 ///
 /// ```json
 /// {
 ///   "info": {
 ///     "alias": "Nice Orange",
-///     "version": "2.0",
+///     "version": "2.0", // protocol version (major.minor)
 ///     "deviceModel": "Samsung", // nullable
 ///     "deviceType": "mobile", // mobile | desktop | web | headless | server, nullable
 ///     "fingerprint": "random string", // ignored in HTTPS mode
+///     "port": 53317,
+///     "protocol": "https", // http | https
 ///     "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
 ///   },
-///   "sessionId": "mySessionId",
 ///   "files": {
 ///     "some file id": {
 ///       "id": "some file id",
@@ -56,7 +37,11 @@ use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId};
 ///       "size": 324242, // bytes
 ///       "fileType": "image/jpeg",
 ///       "sha256": "*sha256 hash*", // nullable
-///       "preview": "*preview data*" // nullable
+///       "preview": "*preview data*", // nullable
+///       "metadata": { // nullable
+///         "modified": "2021-01-01T12:34:56Z", // nullable
+///         "accessed": "2021-01-01T12:34:56Z", // nullable
+///       }
 ///     },
 ///     "another file id": {
 ///       "id": "another file id",
@@ -71,17 +56,35 @@ use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId};
 /// ```
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct PreDownloadMeta {
-    info: PreDownloadMetaInfo,
-    session_id: SessionId,
+struct PrepareUploadRequest {
+    info: PrepareUploadDeviceInfo,
     files: FilesInfoMap,
 }
 
+#[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-struct PreDownloadMetaInfo {
+struct PrepareUploadDeviceInfo {
     #[serde(flatten)]
     device_info: DeviceInfo,
-    download: serde_bool::True,
+    port: Port,
+    protocol: Protocol,
+    download: Option<PreferDownload>,
+}
+
+/// Response
+///
+/// ```json
+/// {
+///   "sessionId": "mySessionId",
+///   "files": {
+///     "someFileId": "someFileToken",
+///     "someOtherFileId": "someOtherFileToken"
+///   }
+/// }
+/// ```
+struct PrepareUploadResponse {
+    session_id: SessionId,
+    files: FilesTokenMap,
 }
 
 #[cfg(test)]
@@ -90,24 +93,30 @@ mod tests {
 
     use mediatype::MediaTypeBuf;
     use serde_json::json;
+    use time::OffsetDateTime;
 
-    use crate::messages::common_fields::{DeviceInfo, DeviceType, FileId, FileInfo, FilesInfoMap};
-
-    use super::{PreDownloadMeta, PreDownloadMetaInfo};
+    use crate::messages::{
+        common_fields::{
+            DeviceInfo, DeviceType, FileId, FileInfo, FileMetadata, FilesInfoMap, PreferDownload,
+            Protocol,
+        },
+        upload::{PrepareUploadDeviceInfo, PrepareUploadRequest},
+    };
 
     #[test]
-    fn predownload_meta_deserialize_serialize() {
-        let response_json = json!(
+    fn prepareupload_request_deserialize_serialize() {
+        let request_json = json!(
             {
               "info": {
                 "alias": "Nice Orange",
-                "version": "2.0",
+                "version": "2.0", // protocol version (major.minor)
                 "deviceModel": "Samsung", // nullable
                 "deviceType": "mobile", // mobile | desktop | web | headless | server, nullable
                 "fingerprint": "random string", // ignored in HTTPS mode
+                "port": 53317,
+                "protocol": "https", // http | https
                 "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
               },
-              "sessionId": "mySessionId",
               "files": {
                 "some file id": {
                   "id": "some file id",
@@ -115,7 +124,11 @@ mod tests {
                   "size": 324242, // bytes
                   "fileType": "image/jpeg",
                   "sha256": "*sha256 hash*", // nullable
-                  "preview": "*preview data*" // nullable
+                  "preview": "*preview data*", // nullable
+                  "metadata": { // nullable
+                    "modified": "2021-01-01T12:34:56Z", // nullable
+                    "accessed": "2021-01-01T12:34:56Z", // nullable
+                  }
                 },
                 "another file id": {
                   "id": "another file id",
@@ -128,7 +141,8 @@ mod tests {
               }
             }
         );
-        let info = PreDownloadMetaInfo::new(
+
+        let info = PrepareUploadDeviceInfo::new(
             DeviceInfo::new(
                 "Nice Orange".to_string().into(),
                 "2.0".to_string().into(),
@@ -136,7 +150,9 @@ mod tests {
                 DeviceType::Mobile,
                 "random string".to_string().into(),
             ),
-            serde_bool::True,
+            53317.into(),
+            Protocol::Https,
+            Some(PreferDownload::new(true)),
         );
         let mut files_map: HashMap<FileId, FileInfo> = HashMap::new();
         files_map.insert(
@@ -148,7 +164,18 @@ mod tests {
                 MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
                 Some("*sha256 hash*".to_string().into()),
                 Some("*preview data*".to_string().into()),
-                None,
+                Some(FileMetadata::new(
+                    OffsetDateTime::parse(
+                        "2021-01-01T12:34:56Z",
+                        &time::format_description::well_known::Rfc3339,
+                    )
+                    .unwrap(),
+                    OffsetDateTime::parse(
+                        "2021-01-01T12:34:56Z",
+                        &time::format_description::well_known::Rfc3339,
+                    )
+                    .unwrap(),
+                )),
             ),
         );
         files_map.insert(
@@ -164,11 +191,14 @@ mod tests {
             ),
         );
         let files = FilesInfoMap::new(files_map);
-        let constructed_response =
-            PreDownloadMeta::new(info, "mySessionId".to_string().into(), files);
-        let read_response = serde_json::from_value(response_json.clone()).unwrap();
-        assert_eq!(constructed_response, read_response);
+        let constructed_response = PrepareUploadRequest::new(info, files);
+        let read_request = serde_json::from_value(request_json.clone()).unwrap();
+        print!(
+            "{}",
+            serde_json::to_string_pretty(&constructed_response).unwrap()
+        );
+        assert_eq!(constructed_response, read_request);
         let written_response = serde_json::to_value(constructed_response).unwrap();
-        assert_eq!(response_json, written_response);
+        assert_eq!(request_json, written_response);
     }
 }

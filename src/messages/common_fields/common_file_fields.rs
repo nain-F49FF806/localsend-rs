@@ -3,7 +3,8 @@ use std::collections::HashMap;
 use derive_more::derive::{Constructor, From};
 use mediatype::MediaTypeBuf;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
+use time::OffsetDateTime;
 
 use super::SHA256;
 
@@ -20,10 +21,24 @@ pub(in super::super) struct FileId(String);
 // pub(in super::super) struct FilePreview(Vec<u8>);
 pub(in super::super) struct FilePreview(String);
 
+/// File Metadata
+///
+/// optional file metadata
+#[serde_as]
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+pub(in super::super) struct FileMetadata {
+    #[serde_as(as = "time::format_description::well_known::Rfc3339")]
+    accessed: OffsetDateTime,
+    #[serde_as(as = "time::format_description::well_known::Rfc3339")]
+    modified: OffsetDateTime,
+}
+
 /// File Info
 ///
-/// File metadata
+/// essential
 #[serde_as]
+#[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub(in super::super) struct FileInfo {
@@ -34,6 +49,7 @@ pub(in super::super) struct FileInfo {
     file_type: MediaTypeBuf,
     sha_256: Option<SHA256>,
     preview: Option<FilePreview>,
+    metadata: Option<FileMetadata>,
 }
 
 /// Files info map
@@ -61,3 +77,20 @@ pub(in super::super) struct FileInfo {
 /// ```
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 pub(in super::super) struct FilesInfoMap(HashMap<FileId, FileInfo>);
+
+/// File upload token
+///
+/// Token required to upload each file during send using upload api
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+pub(in super::super) struct FileUploadToken(String);
+
+/// File Token Map
+///
+/// ```json
+/// {
+///     "someFileId": "someFileToken",
+///     "someOtherFileId": "someOtherFileToken"
+///  }
+/// ```
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+pub(in super::super) struct FilesTokenMap(HashMap<FileId, FileUploadToken>);
