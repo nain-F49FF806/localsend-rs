@@ -1,5 +1,6 @@
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
+use typed_builder::TypedBuilder;
 
 use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
 
@@ -101,7 +102,7 @@ pub(crate) struct MulticastResponse {
 ///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, TypedBuilder, PartialEq)]
 pub(crate) struct LegacyRegister {
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -122,7 +123,7 @@ pub(crate) struct LegacyRegister {
 ///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
 /// }
 /// ```
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, TypedBuilder)]
 pub(crate) struct LegacyRegisterResponse {
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -133,23 +134,31 @@ pub(crate) struct LegacyRegisterResponse {
 mod tests {
     use serde_json::json;
 
-    use crate::messages::common_fields::{Alias, DeviceModel, DeviceType, Fingerprint, Version};
+    use crate::messages::{
+        common_fields::{
+            Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload,
+            Protocol, Version,
+        },
+        discover::MulticastAnnounce,
+    };
 
-    use super::*;
+    use super::{LegacyRegister, LegacyRegisterResponseBuilder};
 
     #[test]
     fn multicast_announce_deserialize_serialize() {
-        let multicast_announce_json = json!({
-          "alias": "Nice Orange",
-          "version": "2.0", // protocol version (major.minor)
-          "deviceModel": "Samsung", // nullable
-          "deviceType": "mobile", // mobile | desktop | web | headless | server, nullable
-          "fingerprint": "random string",
-          "port": 53317,
-          "protocol": "https", // http | https
-          "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
-          "announce": true
-        });
+        let multicast_announce_json = json!(
+            {
+                "alias": "Nice Orange",
+                "version": "2.0", // protocol version (major.minor)
+                "deviceModel": "Samsung", // nullable
+                "deviceType": "mobile", // mobile | desktop | web | headless | server, nullable
+                "fingerprint": "random string",
+                "port": 53317,
+                "protocol": "https", // http | https
+                "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+                "announce": true
+            }
+        );
 
         let device_info = DeviceInfo::new(
             Alias::new("Nice Orange".into()),
@@ -173,5 +182,40 @@ mod tests {
         let written_multicast_announce_json =
             serde_json::to_value(constructed_multicast_announce).unwrap();
         assert_eq!(multicast_announce_json, written_multicast_announce_json);
+    }
+
+    #[test]
+    fn legacy_register_deserialize_serialize() {
+        let request_json = json!(
+            {
+                "alias": "Secret Banana",
+                "version": "2.0", // protocol version (major.minor)
+                "deviceModel": "Windows",
+                "deviceType": "desktop",
+                "fingerprint": "random string", // ignored in HTTPS mode
+                "port": 53317,
+                "protocol": "https", // http | https
+                "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+            }
+        );
+        let constructed_request = LegacyRegister::builder()
+            .device_info(DeviceInfo::new(
+                Alias::new("Secret Banana".into()),
+                Version::new("2.0".into()),
+                Some(DeviceModel::new("Windows".into())),
+                DeviceType::Desktop,
+                Fingerprint::new("random string".into()),
+            ))
+            .port(Port::new(53317))
+            .protocol(Protocol::Https)
+            .download(Some(PreferDownload::new(true)))
+            .build();
+
+        // Deserialize
+        let read_request: LegacyRegister = serde_json::from_value(request_json.clone()).unwrap();
+        assert_eq!(constructed_request, read_request);
+        // Serialize
+        let written_multicast_announce_json = serde_json::to_value(constructed_request).unwrap();
+        assert_eq!(request_json, written_multicast_announce_json);
     }
 }
