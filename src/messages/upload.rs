@@ -82,6 +82,8 @@ struct PrepareUploadDeviceInfo {
 ///   }
 /// }
 /// ```
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
+#[serde(rename_all = "camelCase")]
 struct PrepareUploadResponse {
     session_id: SessionId,
     files: FilesTokenMap,
@@ -97,11 +99,13 @@ mod tests {
 
     use crate::messages::{
         common_fields::{
-            DeviceInfo, DeviceType, FileId, FileInfo, FileMetadata, FilesInfoMap, PreferDownload,
-            Protocol,
+            DeviceInfo, DeviceType, FileId, FileInfo, FileMetadata, FilesInfoMap, FilesTokenMap,
+            PreferDownload, Protocol,
         },
         upload::{PrepareUploadDeviceInfo, PrepareUploadRequest},
     };
+
+    use super::PrepareUploadResponse;
 
     #[test]
     fn prepareupload_request_deserialize_serialize() {
@@ -190,15 +194,46 @@ mod tests {
                 None,
             ),
         );
-        let files = FilesInfoMap::new(files_map);
-        let constructed_response = PrepareUploadRequest::new(info, files);
+        let files: FilesInfoMap = FilesInfoMap::new(files_map);
+        let constructed_request = PrepareUploadRequest::new(info, files);
         let read_request = serde_json::from_value(request_json.clone()).unwrap();
         print!(
             "{}",
-            serde_json::to_string_pretty(&constructed_response).unwrap()
+            serde_json::to_string_pretty(&constructed_request).unwrap()
         );
-        assert_eq!(constructed_response, read_request);
+        assert_eq!(constructed_request, read_request);
+        let written_request = serde_json::to_value(constructed_request).unwrap();
+        assert_eq!(request_json, written_request);
+    }
+
+    #[test]
+    fn prepareupload_response_deserialize_serialize() {
+        let response_json = json!(
+            {
+              "sessionId": "mySessionId",
+              "files": {
+                "someFileId": "someFileToken",
+                "someOtherFileId": "someOtherFileToken"
+              }
+            }
+        );
+        let mut token_map = HashMap::new();
+        token_map.insert(
+            "someFileId".to_string().into(),
+            "someFileToken".to_string().into(),
+        );
+        token_map.insert(
+            "someOtherFileId".to_string().into(),
+            "someOtherFileToken".to_string().into(),
+        );
+
+        let constructed_response = PrepareUploadResponse::new(
+            "mySessionId".to_string().into(),
+            FilesTokenMap::new(token_map),
+        );
+        let read_response = serde_json::from_value(response_json.clone()).unwrap();
+        assert_eq!(constructed_response, read_response);
         let written_response = serde_json::to_value(constructed_response).unwrap();
-        assert_eq!(request_json, written_response);
+        assert_eq!(response_json, written_response);
     }
 }
