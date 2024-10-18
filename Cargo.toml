@@ -7,3 +7,6 @@ repository = "https://github.com/nain-F49FF806/localsend-lib.rs"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+data-url = "0.3.1"
+mediatype = "0.19.18"
+url = "2.5.2"
