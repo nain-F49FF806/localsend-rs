@@ -1,4 +1,4 @@
-use super::common_fields::{Alias, DeviceModel, DeviceType, Fingerprint, Port, Protocol, Version};
+use super::common_fields::{DeviceInfo, IsAnnounce, Port, PreferDownload, Protocol};
 
 /// Multicast UDP (Default) Announcement
 ///
@@ -18,18 +18,14 @@ use super::common_fields::{Alias, DeviceModel, DeviceType, Fingerprint, Port, Pr
 /// }
 /// ```
 struct MulticastAnnounce {
-    alias: Alias,
-    version: Version,
-    device_model: Option<DeviceModel>,
-    device_type: DeviceType,
-    fingerprint: Fingerprint,
+    device_info: DeviceInfo,
     port: Port,
     protocol: Protocol,
-    download: Option<bool>,
-    announce: bool,
+    download: Option<PreferDownload>,
+    announce: IsAnnounce,
 }
 
-/// Response
+/// MulticastAnnounce Response
 ///
 /// Other LocalSend members notice the announce message and reply with their respective information.
 ///
@@ -69,13 +65,56 @@ struct MulticastAnnounce {
 ///
 ///   A response is only triggered when announce is true.
 struct MulticastResponse {
-    alias: Alias,
-    version: Version,
-    device_model: DeviceModel,
-    device_type: DeviceType,
-    fingerprint: Fingerprint,
+    device_info: DeviceInfo,
     port: Port,
     protocol: Protocol,
-    download: Option<bool>,
-    announce: Option<bool>,
+    download: Option<PreferDownload>,
+    announce: Option<IsAnnounce>,
+}
+
+/// 3.2 HTTP (Legacy Mode)
+///
+/// This method should be used when multicast was unsuccessful.
+///
+/// Devices are discovered by sending this request to all local IP addresses.
+///
+/// `POST /api/localsend/v2/register`
+///
+/// Request
+///
+/// ```json
+/// {
+///   "alias": "Secret Banana",
+///   "version": "2.0", // protocol version (major.minor)
+///   "deviceModel": "Windows",
+///   "deviceType": "desktop",
+///   "fingerprint": "random string", // ignored in HTTPS mode
+///   "port": 53317,
+///   "protocol": "https", // http | https
+///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+/// }
+/// ```
+struct LegacyRegister {
+    device_info: DeviceInfo,
+    port: Port,
+    protocol: Protocol,
+    download: Option<PreferDownload>,
+}
+
+/// Response
+///
+/// ```json
+/// {
+///   "alias": "Nice Orange",
+///   "version": "2.0",
+///   "deviceModel": "Samsung",
+///   "deviceType": "mobile",
+///   "fingerprint": "random string", // ignored in HTTPS mode
+///   "download": true, // if the download API (5.2 and 5.3) is active (optional, default: false)
+/// }
+/// ```
+
+struct LegacyRegisterResponse {
+    device_info: DeviceInfo,
+    download: Option<PreferDownload>,
 }
