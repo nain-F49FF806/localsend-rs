@@ -95,11 +95,10 @@ mod tests {
 
     use mediatype::MediaTypeBuf;
     use serde_json::json;
-    use time::OffsetDateTime;
 
     use crate::messages::{
         common_fields::{
-            DeviceInfo, DeviceType, FileId, FileInfo, FileMetadata, FilesInfoMap, FilesTokenMap,
+            DeviceInfo, DeviceType, FileId, FileInfo, FileMeta, FilesInfoMap, FilesTokenMap,
             PreferDownload, Protocol,
         },
         upload::{PrepareUploadDeviceInfo, PrepareUploadRequest},
@@ -159,6 +158,9 @@ mod tests {
             Some(PreferDownload::new(true)),
         );
         let mut files_map: HashMap<FileId, FileInfo> = HashMap::new();
+        let mut file_extra_meta: HashMap<String, String> = HashMap::new();
+        file_extra_meta.insert("modified".to_string(), "2021-01-01T12:34:56Z".to_string());
+        file_extra_meta.insert("accessed".to_string(), "2021-01-01T12:34:56Z".to_string());
         files_map.insert(
             "some file id".to_string().into(),
             FileInfo::new(
@@ -168,18 +170,7 @@ mod tests {
                 MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
                 Some("*sha256 hash*".to_string().into()),
                 Some("*preview data*".to_string().into()),
-                Some(FileMetadata::new(
-                    OffsetDateTime::parse(
-                        "2021-01-01T12:34:56Z",
-                        &time::format_description::well_known::Rfc3339,
-                    )
-                    .unwrap(),
-                    OffsetDateTime::parse(
-                        "2021-01-01T12:34:56Z",
-                        &time::format_description::well_known::Rfc3339,
-                    )
-                    .unwrap(),
-                )),
+                Some(FileMeta::new(file_extra_meta)),
             ),
         );
         files_map.insert(

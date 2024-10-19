@@ -4,7 +4,6 @@ use derive_more::derive::{Constructor, From};
 use mediatype::MediaTypeBuf;
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
-use time::OffsetDateTime;
 
 use super::SHA256;
 
@@ -21,18 +20,13 @@ pub(in super::super) struct FileId(String);
 // pub(in super::super) struct FilePreview(Vec<u8>);
 pub(in super::super) struct FilePreview(String);
 
-/// File Metadata
+/// File (extra) metadata
 ///
-/// optional file metadata
+/// Optional unstructured file metadata like accessed/modified time etc
 #[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct FileMetadata {
-    #[serde_as(as = "time::format_description::well_known::Rfc3339")]
-    accessed: OffsetDateTime,
-    #[serde_as(as = "time::format_description::well_known::Rfc3339")]
-    modified: OffsetDateTime,
-}
+pub(in super::super) struct FileMeta(HashMap<String, String>);
 
 /// File Info
 ///
@@ -49,7 +43,7 @@ pub(in super::super) struct FileInfo {
     file_type: MediaTypeBuf,
     sha_256: Option<SHA256>,
     preview: Option<FilePreview>,
-    metadata: Option<FileMetadata>,
+    metadata: Option<FileMeta>,
 }
 
 /// Files info map
