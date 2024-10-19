@@ -14,5 +14,4 @@ serde = { workspace = true, features = ["derive"] }
 serde-bool = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
-thiserror = { workspace = true }
 typed-builder = { workspace = true }

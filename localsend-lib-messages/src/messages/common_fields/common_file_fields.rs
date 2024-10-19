@@ -11,7 +11,7 @@ use super::SHA256;
 ///
 /// Unique ID for a unique file
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash)]
-pub(in super::super) struct FileId(String);
+pub struct FileId(String);
 
 /// File Preview
 ///
@@ -76,7 +76,7 @@ pub(in super::super) struct FilesInfoMap(HashMap<FileId, FileInfo>);
 ///
 /// Token required to upload each file during send using upload api
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct FileUploadToken(String);
+pub struct FileUploadToken(String);
 
 /// File Token Map
 ///

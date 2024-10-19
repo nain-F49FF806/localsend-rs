@@ -11,7 +11,7 @@ use thiserror::Error;
 // }
 
 #[derive(Debug, Error)]
-pub enum DownloadRequestError {
+pub enum PrepareDownloadError {
     #[error("PIN required / Invalid PIN")]
     Http401,
     #[error("Rejected")]
@@ -23,7 +23,7 @@ pub enum DownloadRequestError {
 }
 
 #[derive(Debug, Error)]
-pub enum UploadRequestError {
+pub enum PrepareUploadError {
     #[error("Finished (No file transfer needed)")]
     Http204,
     #[error("Invalid body")]

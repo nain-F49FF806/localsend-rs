@@ -237,6 +237,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8e9489c2807c139ffd9c1794f4af0ebe86a828db53ecdc7fea2111d0fed085d1"
 
 [[package]]
+name = "localsend-lib-api"
+version = "0.1.1+localsendv2.1"
+dependencies = [
+ "derive_more",
+ "localsend-lib-messages",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "localsend-lib-messages"
 version = "0.1.1+localsendv2.1"
 dependencies = [
@@ -246,7 +256,6 @@ dependencies = [
  "serde-bool",
  "serde_json",
  "serde_with",
- "thiserror",
  "typed-builder",
 ]
 

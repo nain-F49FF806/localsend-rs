@@ -1,0 +1,13 @@
+[package]
+name = "localsend-lib-api"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+localsend-lib-messages = { version = "0", path = "../localsend-lib-messages" }
+serde = { workspace = true }
+derive_more = { workspace = true }
+thiserror = { workspace = true }

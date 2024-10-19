@@ -95,4 +95,4 @@ pub(in super::super) struct PreferDownload(bool);
 ///
 /// A shared secret that can be used to authorise upload / download,to / from server
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct SessionId(String);
+pub struct SessionId(String);

@@ -1,8 +1,8 @@
 mod common_device_fields;
 mod common_file_fields;
 
-pub(super) use common_device_fields::*;
-pub(super) use common_file_fields::*;
+pub use common_device_fields::*;
+pub use common_file_fields::*;
 use derive_more::derive::{Constructor, From};
 use serde::{Deserialize, Serialize};
 /// SHA256

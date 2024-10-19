@@ -1,6 +1,7 @@
 [workspace]
 
-members = ["localsend-lib-messages"]
+members = ["localsend-lib-api", "localsend-lib-messages"]
+resolver = "2"
 
 [workspace.package]
 version = "0.1.1+localsendv2.1"
