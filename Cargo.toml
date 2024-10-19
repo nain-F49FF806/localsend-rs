@@ -1,6 +1,6 @@
 [package]
 name = "localsend-lib"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Rust library for localsend protocol https://github.com/localsend/protocol"
 repository = "https://github.com/nain-F49FF806/localsend-lib.rs"
