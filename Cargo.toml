@@ -6,7 +6,7 @@ members = ["localsend-lib-messages"]
 version = "0.1.1+localsendv2.1"
 edition = "2021"
 description = "Rust library for localsend protocol https://github.com/localsend/protocol"
-repository = "https://github.com/nain-F49FF806/localsend-lib.rs"
+repository = "https://github.com/nain-F49FF806/localsend.rs"
 license = "MIT OR Apache-2.0"
 
 [workspace.dependencies]
