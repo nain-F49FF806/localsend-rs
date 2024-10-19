@@ -1,6 +1,6 @@
 //! Params for different endpoints
+use crate::messages::common_fields::{FileId, FileUploadToken, SessionId};
 use derive_more::derive::Constructor;
-use localsend_lib_messages::common_fields::{FileId, FileUploadToken, SessionId};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]

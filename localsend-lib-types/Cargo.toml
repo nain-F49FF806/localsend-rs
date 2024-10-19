@@ -1,0 +1,17 @@
+[package]
+name = "localsend-lib-types"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+derive_more = { workspace = true, features = ["from", "constructor"] }
+serde = { workspace = true, features = ["derive"] }
+serde-bool = { workspace = true }
+serde_with = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+serde_json = { workspace = true }

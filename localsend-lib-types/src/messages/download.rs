@@ -88,7 +88,6 @@ struct PreDownloadMetaInfo {
 mod tests {
     use std::collections::HashMap;
 
-    use mediatype::MediaTypeBuf;
     use serde_json::json;
 
     use crate::messages::common_fields::{DeviceInfo, DeviceType, FileId, FileInfo, FilesInfoMap};
@@ -145,7 +144,7 @@ mod tests {
                 "some file id".to_string().into(),
                 "my image.png".to_string(),
                 324242,
-                MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
+                "image/jpeg".to_string(),
                 Some("*sha256 hash*".to_string().into()),
                 Some("*preview data*".to_string().into()),
                 None,
@@ -157,7 +156,7 @@ mod tests {
                 "another file id".to_string().into(),
                 "another image.jpg".to_string(),
                 1234,
-                MediaTypeBuf::from_string("image/jpeg".to_string()).unwrap(),
+                "image/jpeg".to_string(),
                 Some("*sha256 hash*".to_string().into()),
                 Some("*preview data*".to_string().into()),
                 None,

@@ -1,6 +1,6 @@
 [workspace]
 
-members = ["localsend-lib-api", "localsend-lib-messages"]
+members = ["localsend-lib-types"]
 resolver = "2"
 
 [workspace.package]

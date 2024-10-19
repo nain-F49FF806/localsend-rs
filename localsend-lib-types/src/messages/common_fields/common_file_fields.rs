@@ -1,9 +1,8 @@
 use std::collections::HashMap;
 
 use derive_more::derive::{Constructor, From};
-use mediatype::MediaTypeBuf;
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, skip_serializing_none, DisplayFromStr};
+use serde_with::{serde_as, skip_serializing_none};
 
 use super::SHA256;
 
@@ -39,8 +38,7 @@ pub(in super::super) struct FileInfo {
     id: FileId,
     file_name: String,
     size: u64,
-    #[serde_as(as = "DisplayFromStr")]
-    file_type: MediaTypeBuf,
+    file_type: String,
     sha_256: Option<SHA256>,
     preview: Option<FilePreview>,
     metadata: Option<FileMeta>,
