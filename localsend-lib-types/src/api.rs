@@ -3,29 +3,30 @@ use crate::messages::common_fields::{FileId, FileUploadToken, SessionId};
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 
+/// Private pin to authenticate
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-struct Pin(String);
+pub struct Pin(String);
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-struct PrepareDownloadParams {
+pub struct PrepareDownloadParams {
     pin: Pin,
 }
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct DownloadParams {
+pub struct DownloadParams {
     session_id: SessionId,
     file_id: FileId,
 }
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-struct PrepareUploadParams {
+pub struct PrepareUploadParams {
     pin: Pin,
 }
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
 #[serde(rename_all = "camelCase")]
-struct UploadParams {
+pub struct UploadParams {
     session_id: SessionId,
     file_id: FileId,
     token: FileUploadToken,

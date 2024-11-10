@@ -1,0 +1,18 @@
+[package]
+name = "localsend-cli"
+version.workspace = true
+edition.workspace = true
+description.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+# flexi_logger = "0.29.4"
+localsend-lib-types = { version = "0.1.1", path = "../localsend-lib-types" }
+# log = "0.4.22"
+multicast-socket = "0.3.3"
+reqwest = { version = "0.12.8", features = ["blocking"] }
+serde-bool = "0.1.3"
+# pretty_env_logger = "0.5.0"
+serde_json.workspace = true
+# tokio = { version = "1", features = ["full"] }

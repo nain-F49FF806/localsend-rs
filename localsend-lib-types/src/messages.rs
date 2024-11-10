@@ -1,4 +1,4 @@
 pub mod common_fields;
-mod discover;
-mod download;
-mod upload;
+pub mod discover;
+pub mod download;
+pub mod upload;

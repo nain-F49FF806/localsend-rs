@@ -1,3 +1,4 @@
+use derive_getters::Getters;
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -22,8 +23,8 @@ use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
 /// }
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-pub(crate) struct MulticastAnnounce {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
+pub struct MulticastAnnounce {
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -72,8 +73,8 @@ pub(crate) struct MulticastAnnounce {
 ///
 ///   A response is only triggered when announce is true.
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-pub(crate) struct MulticastResponse {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
+pub struct MulticastResponse {
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -105,8 +106,8 @@ pub(crate) struct MulticastResponse {
 /// }
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-pub(crate) struct LegacyRegister {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
+pub struct LegacyRegister {
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -127,8 +128,8 @@ pub(crate) struct LegacyRegister {
 /// }
 /// ```
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-pub(crate) struct LegacyRegisterResponse {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
+pub struct LegacyRegisterResponse {
     #[serde(flatten)]
     device_info: DeviceInfo,
     download: Option<PreferDownload>,

@@ -1,3 +1,3 @@
-mod api;
-mod errors;
-mod messages;
+pub mod api;
+pub mod errors;
+pub mod messages;
