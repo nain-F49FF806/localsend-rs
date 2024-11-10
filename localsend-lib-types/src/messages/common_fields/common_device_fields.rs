@@ -60,7 +60,6 @@ pub struct Fingerprint(String);
 #[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
     alias: Alias,
-    version: Version,
     device_model: Option<DeviceModel>,
     device_type: DeviceType,
     fingerprint: Fingerprint,

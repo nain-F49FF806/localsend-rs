@@ -3,7 +3,7 @@ use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
+use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol, Version};
 
 /// Multicast UDP (Default) Announcement
 ///
@@ -25,6 +25,7 @@ use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol};
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
 pub struct MulticastAnnounce {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -75,6 +76,7 @@ pub struct MulticastAnnounce {
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
 pub struct MulticastResponse {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -108,6 +110,7 @@ pub struct MulticastResponse {
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
 pub struct LegacyRegister {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -130,6 +133,7 @@ pub struct LegacyRegister {
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
 pub struct LegacyRegisterResponse {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     download: Option<PreferDownload>,
@@ -164,12 +168,12 @@ mod tests {
 
         let device_info = DeviceInfo::new(
             Alias::new("Nice Orange".into()),
-            Version::new("2.0".into()),
             Some(DeviceModel::new("Samsung".into())),
             DeviceType::Mobile,
             Fingerprint::new("random string".into()),
         );
         let constructed_multicast_announce = MulticastAnnounce::new(
+            Version::new("2.0".into()),
             device_info,
             Port::new(53317),
             Protocol::Https,
@@ -214,9 +218,9 @@ mod tests {
             }
         );
         let constructed_response_1 = MulticastResponse::new(
+            "2.0".to_owned().into(),
             DeviceInfo::new(
                 "Secret Banana".to_owned().into(),
-                "2.0".to_owned().into(),
                 Some("Windows".to_owned().into()),
                 DeviceType::Desktop,
                 "random string".to_owned().into(),
@@ -227,9 +231,9 @@ mod tests {
             None,
         );
         let constructed_response_2 = MulticastResponse::new(
+            "2.0".to_owned().into(),
             DeviceInfo::new(
                 "Secret Banana".to_owned().into(),
-                "2.0".to_owned().into(),
                 Some("Windows".to_owned().into()),
                 DeviceType::Desktop,
                 "random string".to_owned().into(),
@@ -268,9 +272,9 @@ mod tests {
             }
         );
         let constructed_request = LegacyRegister::new(
+            Version::new("2.0".into()),
             DeviceInfo::new(
                 Alias::new("Secret Banana".into()),
-                Version::new("2.0".into()),
                 Some(DeviceModel::new("Windows".into())),
                 DeviceType::Desktop,
                 Fingerprint::new("random string".into()),
@@ -301,9 +305,9 @@ mod tests {
             }
         );
         let constructed_response = LegacyRegisterResponse::new(
+            Version::new("2.0".into()),
             DeviceInfo::new(
                 Alias::new("Nice Orange".into()),
-                Version::new("2.0".into()),
                 Some("Samsung".to_owned().into()),
                 DeviceType::Mobile,
                 Fingerprint::new("random string".into()),

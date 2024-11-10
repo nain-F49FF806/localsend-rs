@@ -18,7 +18,7 @@
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 
-use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId};
+use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId, Version};
 
 /// 5.2 Receive Request (Metadata Only)
 ///
@@ -79,6 +79,7 @@ struct PreDownloadMeta {
 
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
 struct PreDownloadMetaInfo {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     download: serde_bool::True,
@@ -128,9 +129,9 @@ mod tests {
             }
         );
         let info = PreDownloadMetaInfo::new(
+            "2.0".to_string().into(),
             DeviceInfo::new(
                 "Nice Orange".to_string().into(),
-                "2.0".to_string().into(),
                 Some("Samsung".to_string().into()),
                 DeviceType::Mobile,
                 "random string".to_string().into(),

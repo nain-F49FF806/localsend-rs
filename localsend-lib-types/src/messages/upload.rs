@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use super::common_fields::{
-    DeviceInfo, FilesInfoMap, FilesTokenMap, Port, PreferDownload, Protocol, SessionId,
+    DeviceInfo, FilesInfoMap, FilesTokenMap, Port, PreferDownload, Protocol, SessionId, Version,
 };
 
 /// Upload request (Metadata Only)
@@ -64,6 +64,7 @@ struct PrepareUploadRequest {
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
 struct PrepareUploadDeviceInfo {
+    version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
     port: Port,
@@ -145,9 +146,9 @@ mod tests {
         );
 
         let info = PrepareUploadDeviceInfo::new(
+            "2.0".to_string().into(),
             DeviceInfo::new(
                 "Nice Orange".to_string().into(),
-                "2.0".to_string().into(),
                 Some("Samsung".to_string().into()),
                 DeviceType::Mobile,
                 "random string".to_string().into(),
