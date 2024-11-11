@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 ///
 /// A name to present to other devices.
 /// Should be recognizable and easy to discern.
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 pub struct Alias(String);
 
 /// Localsend protocol version (major.minor)
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 pub struct Version(String);
 
 impl Default for Version {
@@ -38,12 +38,12 @@ impl Default for Version {
 /// Device Model
 ///
 /// ex Samsung / Windows / Linux
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 pub struct DeviceModel(String);
 
 /// Device type:
 ///  mobile | desktop | web | headless | server
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum DeviceType {
     Mobile,
@@ -57,11 +57,11 @@ pub enum DeviceType {
 ///
 /// Unique string identifying the device.
 /// Only used to ignore messages from self.
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 pub struct Fingerprint(String);
 
 /// Device Info
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeviceInfo {
     alias: Alias,

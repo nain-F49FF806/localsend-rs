@@ -16,13 +16,14 @@ pub enum SubCommand {
 #[derive(FromArgs, PartialEq, Debug, Getters)]
 #[argh(subcommand, name = "discover")]
 pub struct DiscoverArgs {
-    /// how long to keep scanning, in seconds
-    #[argh(option, default = "3")]
-    timeout: u64,
     /// do not announce or respond to announcements, just listen
     #[argh(switch)]
     silent: bool,
-    /// if not silent, how long to wait before repeating announcement
+    /// how long to keep scanning, in seconds
+    #[argh(option, default = "5")]
+    timeout: u64,
+    /// if not silent, how long to wait before repeating announcement,
+    /// in seconds
     #[argh(option, default = "2")]
     announce_interval: u64,
 }
