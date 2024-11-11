@@ -23,13 +23,15 @@ fn listen_broadcasts() {
     let mulicast_address = SocketAddrV4::new(MULTICAST_IP, LOCALSEND_PORT);
     let socket = MulticastSocket::all_interfaces(mulicast_address).unwrap();
     loop {
-        if let Ok(udp_message) = socket.receive() {
-            dbg!(&udp_message.origin_address);
-            let data_string = String::from_utf8(udp_message.data).unwrap();
-            if let Ok(announce) = serde_json::from_str::<MulticastAnnounce>(&data_string) {
-                dbg!(&announce);
-            };
+        let Ok(udp_message) = socket.receive() else {
+            continue;
         };
+        dbg!(&udp_message.origin_address);
+        let data_string = String::from_utf8(udp_message.data).unwrap();
+        let Ok(announce) = serde_json::from_str::<MulticastAnnounce>(&data_string) else {
+            continue;
+        };
+        dbg!(&announce);
     }
 }
 
@@ -49,12 +51,8 @@ fn announce_broadcast() {
         serde_bool::True,
     );
     let data_string = serde_json::to_string(&self_announce).expect("fix this serialization");
-    match socket.send(data_string.as_bytes(), &Interface::Default) {
-        Ok(bytes_sent) => {
-            dbg!(bytes_sent);
-        }
-        Err(e) => {
-            dbg!(e);
-        }
-    };
+    let result = socket.send(data_string.as_bytes(), &Interface::Default);
+    if let Err(e) = result {
+        dbg!(e);
+    }
 }
