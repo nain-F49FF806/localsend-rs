@@ -1,3 +1,4 @@
+use convert_case::{Case, Casing};
 use directories::ProjectDirs;
 use localsend_lib_types::messages::common_fields::{DeviceInfo, DeviceType};
 use serde::{Deserialize, Serialize};
@@ -10,10 +11,13 @@ pub(crate) struct State {
 impl Default for State {
     fn default() -> Self {
         // Generate
-        let alias = names::Generator::default().next().expect("Infinite names");
+        let alias = names::Generator::default()
+            .next()
+            .expect("Infinite names")
+            .to_case(Case::Title);
         let fingerprint = uuid::Uuid::new_v4().to_string();
         // Detect
-        let device_model = std::env::consts::OS.to_string();
+        let device_model = std::env::consts::OS.to_string().to_case(Case::Pascal);
         // Fixed
         let device_type = DeviceType::Headless;
         // Combine
