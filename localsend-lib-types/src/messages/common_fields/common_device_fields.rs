@@ -16,6 +16,11 @@ pub struct Alias(String);
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 pub struct Version(String);
 
+impl Default for Version {
+    fn default() -> Self {
+        Version::new("2.1".to_string())
+    }
+}
 // impl FromStr for Version {
 //     type Err = VersionDecodeError;
 //     fn from_str(s: &str) -> Result<Self, Self::Err> {
@@ -65,9 +70,26 @@ pub struct DeviceInfo {
     fingerprint: Fingerprint,
 }
 
+impl Default for DeviceInfo {
+    fn default() -> Self {
+        DeviceInfo::new(
+            "GenericTurnip".to_string().into(),
+            Some("Rust".to_string().into()),
+            DeviceType::Headless,
+            "XXXXXXXXXXXXXXXX".to_string().into(),
+        )
+    }
+}
+
 /// Port
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve)]
 pub struct Port(u16);
+
+impl Default for Port {
+    fn default() -> Self {
+        Port::new(53317)
+    }
+}
 
 /// Protocol:
 /// http / https
