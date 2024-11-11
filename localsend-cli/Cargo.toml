@@ -9,12 +9,17 @@ license.workspace = true
 [dependencies]
 argh = "0.1.12"
 derive-getters = { version = "0.5.0", features = ["auto_copy_getters"] }
+directories = "5.0.1"
 # flexi_logger = "0.29.4"
 localsend-lib-types = { version = "0.1.1", path = "../localsend-lib-types" }
 # log = "0.4.22"
 multicast-socket = "0.3.3"
+names = { version = "0.14.0", default-features = false }
 reqwest = { version = "0.12.8", features = ["blocking"] }
+serde.workspace = true
 serde-bool = "0.1.3"
 # pretty_env_logger = "0.5.0"
 serde_json.workspace = true
+toml = "0.8.19"
+uuid = { version = "1.11.0", features = ["v4"] }
 # tokio = { version = "1", features = ["full"] }
