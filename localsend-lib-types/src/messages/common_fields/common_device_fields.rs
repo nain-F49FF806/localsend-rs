@@ -57,7 +57,7 @@ pub enum DeviceType {
 ///
 /// Unique string identifying the device.
 /// Only used to ignore messages from self.
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash, Clone)]
 pub struct Fingerprint(String);
 
 /// Device Info
@@ -103,7 +103,7 @@ pub enum Protocol {
 /// Download
 ///
 /// Prefer download API (recievers pull) over upload API (senders push)
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve, Clone)]
 pub struct PreferDownload(bool);
 
 // /// Announce
