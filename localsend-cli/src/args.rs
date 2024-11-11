@@ -22,4 +22,7 @@ pub struct DiscoverArgs {
     /// do not announce or respond to announcements, just listen
     #[argh(switch)]
     silent: bool,
+    /// if not silent, how long to wait before repeating announcement
+    #[argh(option, default = "2")]
+    announce_interval: u64,
 }

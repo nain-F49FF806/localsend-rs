@@ -13,7 +13,8 @@ use crate::{
 };
 
 pub fn discover(discover_args: DiscoverArgs) {
-    let _announce_broadcast_handle = thread::spawn(announce_broadcast);
+    let announce_interval = discover_args.announce_interval();
+    let _announce_broadcast_handle = thread::spawn(move || announce_broadcast(announce_interval));
     let _listen_broadcasts_handle = thread::spawn(listen_broadcasts);
     thread::sleep(Duration::from_secs(discover_args.timeout()));
 }
@@ -35,7 +36,7 @@ fn listen_broadcasts() {
     }
 }
 
-fn announce_broadcast() {
+fn announce_broadcast(interval: u64) {
     let state = load_state();
     let device_info = state.device_info;
     println!("Announcing ourselves over multicast");
@@ -50,9 +51,14 @@ fn announce_broadcast() {
         Some(true.into()),
         serde_bool::True,
     );
-    let data_string = serde_json::to_string(&self_announce).expect("fix this serialization");
-    let result = socket.send(data_string.as_bytes(), &Interface::Default);
-    if let Err(e) = result {
-        dbg!(e);
+    let announce_string = serde_json::to_string(&self_announce).expect("fix this serialization");
+    let announce_bytes = announce_string.as_bytes();
+
+    loop {
+        let result = socket.send(announce_bytes, &Interface::Default);
+        if let Err(e) = result {
+            dbg!(e);
+        }
+        thread::sleep(Duration::from_secs(interval));
     }
 }
