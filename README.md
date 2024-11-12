@@ -2,7 +2,7 @@
 
 [![Crates.io](https://img.shields.io/crates/v/localsend.rs.svg)](https://crates.io/crates/localsend.rs)
 [![Docs.rs](https://docs.rs/localsend.rs/badge.svg)](https://docs.rs/localsend.rs)
-[![CI](https://github.com/nain-F49FF806/localsend.rs/actions/workflows/CI/badge.svg)](https://github.com/nain-F49FF806/localsend.rs/actions)
+[![CI](https://github.com/nain-F49FF806/localsend.rs/actions/workflows/rust.yml/badge.svg)](https://github.com/nain-F49FF806/localsend.rs/actions/workflows/rust.yml)
 
 <!--
 ## Installation
