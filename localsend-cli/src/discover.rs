@@ -5,6 +5,7 @@ use std::{
     time::Duration,
 };
 
+use derive_more::derive::Display;
 use localsend_lib_types::messages::{
     common_fields::{DeviceInfo, Fingerprint, Port, Protocol},
     discover::{MulticastAnnounce, MulticastCommon, MulticastMessage},
@@ -70,11 +71,11 @@ fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
                 device_info: multicast_common.device_info().clone(),
                 address: *peer_address,
                 port: *multicast_common.port(),
+                protocol: *multicast_common.protocol(),
                 download_mode: peer_download_mode,
             };
             if !peers.contains_key(peer_fingerprint) {
-                println!("Adding new peer {:?}", peer_fingerprint);
-                dbg!(&peer_info);
+                println!("New peer: {}", &peer_info);
             } else {
                 // println!("Updaing peer {:?}", peer_fingerprint);
             }
@@ -84,6 +85,7 @@ fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
 }
 
 fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
+    println!("Announcing ourselves over multicast");
     let mulicast_address = SocketAddrV4::new(MULTICAST_IP, LOCALSEND_PORT);
     let socket = MulticastSocket::all_interfaces(mulicast_address).unwrap();
 
@@ -96,7 +98,6 @@ fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
     let announce_string = serde_json::to_string(&self_announce).expect("fix this serialization");
     let announce_bytes = announce_string.as_bytes();
     loop {
-        println!("Announcing ourselves over multicast");
         let result = socket.send(announce_bytes, &Interface::Default);
         if let Err(e) = result {
             dbg!(e);
@@ -107,10 +108,31 @@ fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
 
 type PeersMap = HashMap<Fingerprint, PeerInfo>;
 
-#[derive(Debug)]
+#[derive(Display, Debug)]
+#[display("{}", self.terminal_display())]
+
 struct PeerInfo {
     pub device_info: DeviceInfo,
     pub address: Ipv4Addr,
     pub port: Port,
+    pub protocol: Protocol,
     pub download_mode: bool,
+}
+
+impl PeerInfo {
+    fn terminal_display(&self) -> String {
+        let full_address = format!("{}:{}", self.address, self.port);
+        let url = format!(
+            "{}://{}",
+            self.protocol.to_string().to_lowercase(),
+            full_address
+        );
+        let link = terminal_link::Link::new(&full_address, &url);
+        format!(
+            "{} @{} {}",
+            self.device_info,
+            link,
+            if self.download_mode { "📥" } else { "📤" }
+        )
+    }
 }

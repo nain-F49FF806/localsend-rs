@@ -1,7 +1,7 @@
 //! Fields common to most messages
 
 use derive_getters::{Dissolve, Getters};
-use derive_more::derive::{Constructor, From};
+use derive_more::derive::{Constructor, Display, From};
 // use derive_new::new;
 use serde::{Deserialize, Serialize};
 
@@ -9,12 +9,12 @@ use serde::{Deserialize, Serialize};
 ///
 /// A name to present to other devices.
 /// Should be recognizable and easy to discern.
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 #[from(forward)]
 pub struct Alias(String);
 
 /// Localsend protocol version (major.minor)
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 #[from(forward)]
 pub struct Version(String);
 
@@ -40,13 +40,13 @@ impl Default for Version {
 /// Device Model
 ///
 /// ex Samsung / Windows / Linux
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 #[from(forward)]
 pub struct DeviceModel(String);
 
 /// Device type:
 ///  mobile | desktop | web | headless | server
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum DeviceType {
     Mobile,
@@ -60,13 +60,14 @@ pub enum DeviceType {
 ///
 /// Unique string identifying the device.
 /// Only used to ignore messages from self.
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash, Clone)]
 #[from(forward)]
 pub struct Fingerprint(String);
 
 /// Device Info
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters, Clone)]
 #[serde(rename_all = "camelCase")]
+#[display("{alias} ({}{device_type})", device_model.as_ref().unwrap_or(&"".into()))]
 pub struct DeviceInfo {
     alias: Alias,
     device_model: Option<DeviceModel>,
@@ -86,7 +87,9 @@ impl Default for DeviceInfo {
 }
 
 /// Port
-#[derive(Clone, Copy, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve)]
+#[derive(
+    Clone, Copy, Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve,
+)]
 pub struct Port(u16);
 
 impl Default for Port {
@@ -97,7 +100,7 @@ impl Default for Port {
 
 /// Protocol:
 /// http / https
-#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, PartialEq, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum Protocol {
     Http,
@@ -107,19 +110,19 @@ pub enum Protocol {
 /// Download
 ///
 /// Prefer download API (recievers pull) over upload API (senders push)
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve, Clone)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve, Clone)]
 pub struct PreferDownload(bool);
 
 // /// Announce
 // ///
 // /// Denotes if a discovery message is of type announce or response.
 // /// A discovery response is only triggered when announce is true.
-// #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+// #[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 // pub struct IsAnnounce(bool);
 
 /// Session ID
 ///
 /// A shared secret that can be used to authorise upload / download,to / from server
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 #[from(forward)]
 pub struct SessionId(String);
