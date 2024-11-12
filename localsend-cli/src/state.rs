@@ -17,8 +17,9 @@ impl Default for State {
             .to_case(Case::Title);
         let fingerprint = uuid::Uuid::new_v4().to_string();
         // Detect
-        let device_model = std::env::consts::OS.to_string().to_case(Case::Pascal);
+        //let device_model = std::env::consts::OS.to_string().to_case(Case::Pascal);
         // Fixed
+        let device_model = "localsend-cli".to_string();
         let device_type = DeviceType::Headless;
         // Combine
         let device_info = DeviceInfo::new(

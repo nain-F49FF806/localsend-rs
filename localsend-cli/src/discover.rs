@@ -52,7 +52,7 @@ fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
         let message_string =
             String::from_utf8(udp_message.data).expect("Message should be valid utf8 string");
         let Ok(multicast_message) = serde_json::from_str(&message_string) else {
-            dbg!(peer_address, message_string);
+            dbg!("Unrecognised message", peer_address, message_string);
             continue;
         };
         let multicast_common: MulticastCommon = match multicast_message {
@@ -85,7 +85,7 @@ fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
 }
 
 fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
-    println!("Announcing ourselves over multicast");
+    println!("Announcing ourselves over multicast: {device_info}");
     let mulicast_address = SocketAddrV4::new(MULTICAST_IP, LOCALSEND_PORT);
     let socket = MulticastSocket::all_interfaces(mulicast_address).unwrap();
 

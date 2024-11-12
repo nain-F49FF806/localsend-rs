@@ -67,7 +67,7 @@ pub struct Fingerprint(String);
 /// Device Info
 #[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters, Clone)]
 #[serde(rename_all = "camelCase")]
-#[display("{alias} ({}{device_type})", device_model.as_ref().unwrap_or(&"".into()))]
+#[display("{alias} ({} {device_type})", device_model.as_ref().unwrap_or(&"Generic".into()))]
 pub struct DeviceInfo {
     alias: Alias,
     device_model: Option<DeviceModel>,
