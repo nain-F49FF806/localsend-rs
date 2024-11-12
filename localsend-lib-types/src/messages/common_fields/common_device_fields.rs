@@ -10,10 +10,12 @@ use serde::{Deserialize, Serialize};
 /// A name to present to other devices.
 /// Should be recognizable and easy to discern.
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[from(forward)]
 pub struct Alias(String);
 
 /// Localsend protocol version (major.minor)
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[from(forward)]
 pub struct Version(String);
 
 impl Default for Version {
@@ -39,6 +41,7 @@ impl Default for Version {
 ///
 /// ex Samsung / Windows / Linux
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
+#[from(forward)]
 pub struct DeviceModel(String);
 
 /// Device type:
@@ -58,6 +61,7 @@ pub enum DeviceType {
 /// Unique string identifying the device.
 /// Only used to ignore messages from self.
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash, Clone)]
+#[from(forward)]
 pub struct Fingerprint(String);
 
 /// Device Info
@@ -73,10 +77,10 @@ pub struct DeviceInfo {
 impl Default for DeviceInfo {
     fn default() -> Self {
         DeviceInfo::new(
-            "GenericTurnip".to_string().into(),
-            Some("Rust".to_string().into()),
+            "GenericTurnip".into(),
+            Some("Rust".into()),
             DeviceType::Headless,
-            "XXXXXXXXXXXXXXXX".to_string().into(),
+            "XXXXXXXXXXXXXXXX".into(),
         )
     }
 }
@@ -117,4 +121,5 @@ pub struct PreferDownload(bool);
 ///
 /// A shared secret that can be used to authorise upload / download,to / from server
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[from(forward)]
 pub struct SessionId(String);

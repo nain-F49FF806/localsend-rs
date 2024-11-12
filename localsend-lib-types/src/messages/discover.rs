@@ -253,13 +253,13 @@ mod tests {
             }
         );
         let constructed_response_1 = MulticastResponse::new(
-            "2.0".to_owned().into(),
+            "2.0".into(),
             MulticastCommon::new(
                 DeviceInfo::new(
-                    "Secret Banana".to_owned().into(),
-                    Some("Windows".to_owned().into()),
+                    "Secret Banana".into(),
+                    Some("Windows".into()),
                     DeviceType::Desktop,
-                    "random string".to_owned().into(),
+                    "random string".into(),
                 ),
                 53317.into(),
                 Protocol::Https,
@@ -268,13 +268,13 @@ mod tests {
             None,
         );
         let constructed_response_2 = MulticastResponse::new(
-            "2.0".to_owned().into(),
+            "2.0".into(),
             MulticastCommon::new(
                 DeviceInfo::new(
-                    "Secret Banana".to_owned().into(),
-                    Some("Windows".to_owned().into()),
+                    "Secret Banana".into(),
+                    Some("Windows".into()),
                     DeviceType::Desktop,
-                    "random string".to_owned().into(),
+                    "random string".into(),
                 ),
                 53317.into(),
                 Protocol::Https,
@@ -347,7 +347,7 @@ mod tests {
             Version::new("2.0".into()),
             DeviceInfo::new(
                 Alias::new("Nice Orange".into()),
-                Some("Samsung".to_owned().into()),
+                Some("Samsung".into()),
                 DeviceType::Mobile,
                 Fingerprint::new("random string".into()),
             ),
