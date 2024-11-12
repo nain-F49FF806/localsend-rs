@@ -1,7 +1,7 @@
 mod args;
-mod config;
 mod constants;
 mod discover;
+mod state;
 
 use args::{Args, SubCommand};
 use discover::discover;

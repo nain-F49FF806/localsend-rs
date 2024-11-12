@@ -13,8 +13,8 @@ use multicast_socket::{Interface, MulticastSocket};
 
 use crate::{
     args::DiscoverArgs,
-    config::load_state,
     constants::{LOCALSEND_PORT, MULTICAST_IP},
+    state::load_state,
 };
 
 /// Discover nearby localsend devices/peers
