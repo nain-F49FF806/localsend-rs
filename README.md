@@ -1,8 +1,8 @@
-# localsend.rs
+# localsend-rs
 
-[![Crates.io](https://img.shields.io/crates/v/localsend.rs.svg)](https://crates.io/crates/localsend.rs)
-[![Docs.rs](https://docs.rs/localsend.rs/badge.svg)](https://docs.rs/localsend.rs)
-[![CI](https://github.com/nain-F49FF806/localsend.rs/actions/workflows/rust.yml/badge.svg)](https://github.com/nain-F49FF806/localsend.rs/actions/workflows/rust.yml)
+<!-- [![Crates.io](https://img.shields.io/crates/v/localsend-rs.svg)](https://crates.io/crates/localsend-rs) -->
+<!-- [![Docs.rs](https://docs.rs/localsend-rs/badge.svg)](https://docs.rs/localsend-rs) -->
+[![CI](https://github.com/nain-F49FF806/localsend-rs/actions/workflows/rust.yml/badge.svg)](https://github.com/nain-F49FF806/localsend-rs/actions/workflows/rust.yml)
 
 <!--
 ## Installation
@@ -11,7 +11,7 @@
 
 * Install the rust toolchain in order to have cargo installed by following
   [this](https://www.rust-lang.org/tools/install) guide.
-* run `cargo install localsend.rs`
+* run `cargo install localsend-rs`
 -->
 
 ## License

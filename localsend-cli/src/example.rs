@@ -47,7 +47,7 @@ fn main() {
                     DeviceInfo::new(
                         "Anonimoan Monari".to_string().into(),
                         "2.1".to_string().into(),
-                        Some("localsend.rs-cli".to_string().into()),
+                        Some("localsend-rs-cli".to_string().into()),
                         DeviceType::Headless,
                         "randomfingerprint0".to_string().into(),
                     ),

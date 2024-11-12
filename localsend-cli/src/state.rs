@@ -33,7 +33,7 @@ impl Default for State {
 }
 
 pub(crate) fn load_state() -> State {
-    if let Some(project_dirs) = ProjectDirs::from("", "Nainapps", "localsend.rs") {
+    if let Some(project_dirs) = ProjectDirs::from("", "Nainapps", "localsend-rs") {
         let generated_state_dir = project_dirs.data_local_dir();
         let generated_state_file = generated_state_dir.join("state.toml");
         if generated_state_file.exists() {
