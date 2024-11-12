@@ -6,8 +6,8 @@ use std::{
 };
 
 use localsend_lib_types::messages::{
-    common_fields::{DeviceInfo, Fingerprint, Port, Protocol, Version},
-    discover::{MulticastAnnounce, MulticastResponse},
+    common_fields::{DeviceInfo, Fingerprint, Port, Protocol},
+    discover::{MulticastAnnounce, MulticastCommon, MulticastMessage},
 };
 use multicast_socket::{Interface, MulticastSocket};
 
@@ -38,65 +38,47 @@ pub fn discover(discover_args: DiscoverArgs) {
     thread::sleep(Duration::from_secs(discover_args.timeout()));
 }
 
-fn listen_broadcasts(device_info: DeviceInfo) {
+fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
     println!("Listening for broadcasts!");
     let mulicast_address = SocketAddrV4::new(MULTICAST_IP, LOCALSEND_PORT);
     let socket = MulticastSocket::all_interfaces(mulicast_address).unwrap();
-    let mut peers: HashMap<Fingerprint, PeerInfo> = HashMap::new();
+    let mut peers: PeersMap = HashMap::new();
     loop {
         let Ok(udp_message) = socket.receive() else {
             continue;
         };
         let peer_address = udp_message.origin_address.ip();
-        dbg!(peer_address);
-        let message_string = String::from_utf8(udp_message.data).unwrap();
-
-        if let Ok(announce) = serde_json::from_str::<MulticastAnnounce>(&message_string) {
-            let peer_fingerprint = announce.device_info().fingerprint();
-            if peer_fingerprint != device_info.fingerprint() {
-                let peer_download_mode = if let Some(prefer_download_mode) = announce.download() {
-                    prefer_download_mode.clone().dissolve()
-                } else {
-                    false
-                };
-                let peer_info = PeerInfo {
-                    device_info: announce.device_info().clone(),
-                    address: *peer_address,
-                    port: *announce.port(),
-                    download_mode: peer_download_mode,
-                };
-                if !peers.contains_key(peer_fingerprint) {
-                    println!("Adding new peer {:?}", peer_fingerprint);
-                    dbg!(&peer_info);
-                } else {
-                    // println!("Updaing peer {:?}", peer_fingerprint);
-                }
-                peers.insert(peer_fingerprint.clone(), peer_info);
-            };
+        let message_string =
+            String::from_utf8(udp_message.data).expect("Message should be valid utf8 string");
+        let Ok(multicast_message) = serde_json::from_str(&message_string) else {
+            dbg!(peer_address, message_string);
+            continue;
         };
-
-        if let Ok(response) = serde_json::from_str::<MulticastResponse>(&message_string) {
-            let peer_fingerprint = response.device_info().fingerprint();
-            if peer_fingerprint != device_info.fingerprint() {
-                let peer_download_mode = if let Some(prefer_download_mode) = response.download() {
-                    prefer_download_mode.clone().dissolve()
-                } else {
-                    false
-                };
-                let peer_info = PeerInfo {
-                    device_info: response.device_info().clone(),
-                    address: *peer_address,
-                    port: *response.port(),
-                    download_mode: peer_download_mode,
-                };
-                if !peers.contains_key(peer_fingerprint) {
-                    println!("Adding new peer {:?}", peer_fingerprint);
-                    dbg!(&peer_info);
-                } else {
-                    // println!("Updaing peer {:?}", peer_fingerprint);
-                }
-                peers.insert(peer_fingerprint.clone(), peer_info);
+        let multicast_common: MulticastCommon = match multicast_message {
+            MulticastMessage::Announce(announce) => announce.multicast_common().clone(),
+            MulticastMessage::Response(response) => response.multicast_common().clone(),
+        };
+        let peer_fingerprint = multicast_common.device_info().fingerprint();
+        if peer_fingerprint != device_info.fingerprint() {
+            let peer_download_mode = if let Some(prefer_download_mode) = multicast_common.download()
+            {
+                prefer_download_mode.clone().dissolve()
+            } else {
+                false
+            };
+            let peer_info = PeerInfo {
+                device_info: multicast_common.device_info().clone(),
+                address: *peer_address,
+                port: *multicast_common.port(),
+                download_mode: peer_download_mode,
+            };
+            if !peers.contains_key(peer_fingerprint) {
+                println!("Adding new peer {:?}", peer_fingerprint);
+                dbg!(&peer_info);
+            } else {
+                // println!("Updaing peer {:?}", peer_fingerprint);
             }
+            peers.insert(peer_fingerprint.clone(), peer_info);
         };
     }
 }
@@ -105,14 +87,12 @@ fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
     let mulicast_address = SocketAddrV4::new(MULTICAST_IP, LOCALSEND_PORT);
     let socket = MulticastSocket::all_interfaces(mulicast_address).unwrap();
 
-    let self_announce = MulticastAnnounce::new(
-        Version::default(),
+    let self_announce = MulticastAnnounce::from(MulticastCommon::new(
         device_info,
         LOCALSEND_PORT.into(),
         Protocol::Http,
         Some(true.into()),
-        serde_bool::True,
-    );
+    ));
     let announce_string = serde_json::to_string(&self_announce).expect("fix this serialization");
     let announce_bytes = announce_string.as_bytes();
     loop {
@@ -124,6 +104,8 @@ fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
         thread::sleep(Duration::from_secs(interval));
     }
 }
+
+type PeersMap = HashMap<Fingerprint, PeerInfo>;
 
 #[derive(Debug)]
 struct PeerInfo {

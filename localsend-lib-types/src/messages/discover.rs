@@ -5,6 +5,16 @@ use serde_with::skip_serializing_none;
 
 use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol, Version};
 
+/// Common fields for Multicast Announce / Multicast Response
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters, Clone)]
+pub struct MulticastCommon {
+    #[serde(flatten)]
+    device_info: DeviceInfo,
+    port: Port,
+    protocol: Protocol,
+    download: Option<PreferDownload>,
+}
 /// Multicast UDP (Default) Announcement
 ///
 /// At the start of the app, the following message will be sent to the multicast group:
@@ -27,11 +37,18 @@ use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol, Version};
 pub struct MulticastAnnounce {
     version: Version,
     #[serde(flatten)]
-    device_info: DeviceInfo,
-    port: Port,
-    protocol: Protocol,
-    download: Option<PreferDownload>,
+    multicast_common: MulticastCommon,
     announce: serde_bool::True,
+}
+
+impl From<MulticastCommon> for MulticastAnnounce {
+    fn from(value: MulticastCommon) -> Self {
+        MulticastAnnounce {
+            version: Version::default(),
+            multicast_common: value,
+            announce: serde_bool::True,
+        }
+    }
 }
 
 /// MulticastAnnounce Response
@@ -78,13 +95,26 @@ pub struct MulticastAnnounce {
 pub struct MulticastResponse {
     version: Version,
     #[serde(flatten)]
-    device_info: DeviceInfo,
-    port: Port,
-    protocol: Protocol,
-    download: Option<PreferDownload>,
+    multicast_common: MulticastCommon,
     announce: Option<serde_bool::False>,
 }
 
+impl From<MulticastCommon> for MulticastResponse {
+    fn from(value: MulticastCommon) -> Self {
+        MulticastResponse {
+            version: Version::default(),
+            multicast_common: value,
+            announce: Some(serde_bool::False),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[serde(untagged)]
+pub enum MulticastMessage {
+    Announce(MulticastAnnounce),
+    Response(MulticastResponse),
+}
 /// 3.2 HTTP (Legacy Mode)
 ///
 /// This method should be used when multicast was unsuccessful.
@@ -143,9 +173,12 @@ pub struct LegacyRegisterResponse {
 mod tests {
     use serde_json::json;
 
-    use crate::messages::common_fields::{
-        Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload, Protocol,
-        Version,
+    use crate::messages::{
+        common_fields::{
+            Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload,
+            Protocol, Version,
+        },
+        discover::MulticastCommon,
     };
 
     use super::{LegacyRegister, LegacyRegisterResponse, MulticastAnnounce, MulticastResponse};
@@ -174,10 +207,12 @@ mod tests {
         );
         let constructed_multicast_announce = MulticastAnnounce::new(
             Version::new("2.0".into()),
-            device_info,
-            Port::new(53317),
-            Protocol::Https,
-            Some(PreferDownload::new(true)),
+            MulticastCommon::new(
+                device_info,
+                Port::new(53317),
+                Protocol::Https,
+                Some(PreferDownload::new(true)),
+            ),
             serde_bool::True,
         );
         // Deserialize
@@ -219,28 +254,32 @@ mod tests {
         );
         let constructed_response_1 = MulticastResponse::new(
             "2.0".to_owned().into(),
-            DeviceInfo::new(
-                "Secret Banana".to_owned().into(),
-                Some("Windows".to_owned().into()),
-                DeviceType::Desktop,
-                "random string".to_owned().into(),
+            MulticastCommon::new(
+                DeviceInfo::new(
+                    "Secret Banana".to_owned().into(),
+                    Some("Windows".to_owned().into()),
+                    DeviceType::Desktop,
+                    "random string".to_owned().into(),
+                ),
+                53317.into(),
+                Protocol::Https,
+                Some(PreferDownload::new(true)),
             ),
-            53317.into(),
-            Protocol::Https,
-            Some(PreferDownload::new(true)),
             None,
         );
         let constructed_response_2 = MulticastResponse::new(
             "2.0".to_owned().into(),
-            DeviceInfo::new(
-                "Secret Banana".to_owned().into(),
-                Some("Windows".to_owned().into()),
-                DeviceType::Desktop,
-                "random string".to_owned().into(),
+            MulticastCommon::new(
+                DeviceInfo::new(
+                    "Secret Banana".to_owned().into(),
+                    Some("Windows".to_owned().into()),
+                    DeviceType::Desktop,
+                    "random string".to_owned().into(),
+                ),
+                53317.into(),
+                Protocol::Https,
+                Some(PreferDownload::new(true)),
             ),
-            53317.into(),
-            Protocol::Https,
-            Some(PreferDownload::new(true)),
             Some(serde_bool::False),
         );
         // Deserialize

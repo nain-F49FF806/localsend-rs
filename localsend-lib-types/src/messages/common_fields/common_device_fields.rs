@@ -93,7 +93,7 @@ impl Default for Port {
 
 /// Protocol:
 /// http / https
-#[derive(Debug, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 #[serde(rename_all = "lowercase")]
 pub enum Protocol {
     Http,
