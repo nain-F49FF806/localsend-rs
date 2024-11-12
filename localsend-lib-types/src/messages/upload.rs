@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
 use super::common_fields::{
-    DeviceInfo, FilesInfoMap, FilesTokenMap, Port, PreferDownload, Protocol, SessionId, Version,
+    DeviceInfo, FilesInfoMap, FilesTokenMap, Port, Protocol, SessionId, Version,
 };
 
 /// Upload request (Metadata Only)
@@ -69,7 +69,7 @@ struct PrepareUploadDeviceInfo {
     device_info: DeviceInfo,
     port: Port,
     protocol: Protocol,
-    download: Option<PreferDownload>,
+    download: Option<bool>,
 }
 
 /// Response
@@ -99,7 +99,7 @@ mod tests {
     use crate::messages::{
         common_fields::{
             DeviceInfo, DeviceType, FileId, FileInfo, FileMeta, FilesInfoMap, FilesTokenMap,
-            PreferDownload, Protocol,
+            Protocol,
         },
         upload::{PrepareUploadDeviceInfo, PrepareUploadRequest},
     };
@@ -155,7 +155,7 @@ mod tests {
             ),
             53317.into(),
             Protocol::Https,
-            Some(PreferDownload::new(true)),
+            Some(true),
         );
         let mut files_map: HashMap<FileId, FileInfo> = HashMap::new();
         let mut file_extra_meta: HashMap<String, String> = HashMap::new();

@@ -107,12 +107,6 @@ pub enum Protocol {
     Https,
 }
 
-/// Download
-///
-/// Prefer download API (recievers pull) over upload API (senders push)
-#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Dissolve, Clone)]
-pub struct PreferDownload(bool);
-
 // /// Announce
 // ///
 // /// Denotes if a discovery message is of type announce or response.

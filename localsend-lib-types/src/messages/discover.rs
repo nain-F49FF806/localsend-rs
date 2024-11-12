@@ -3,7 +3,7 @@ use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use super::common_fields::{DeviceInfo, Port, PreferDownload, Protocol, Version};
+use super::common_fields::{DeviceInfo, Port, Protocol, Version};
 
 /// Common fields for Multicast Announce / Multicast Response
 #[skip_serializing_none]
@@ -13,7 +13,8 @@ pub struct MulticastCommon {
     device_info: DeviceInfo,
     port: Port,
     protocol: Protocol,
-    download: Option<PreferDownload>,
+    /// Prefer download API (recievers pull) over upload API (senders push)
+    download: Option<bool>,
 }
 /// Multicast UDP (Default) Announcement
 ///
@@ -145,7 +146,8 @@ pub struct LegacyRegister {
     device_info: DeviceInfo,
     port: Port,
     protocol: Protocol,
-    download: Option<PreferDownload>,
+    /// Prefer download API (recievers pull) over upload API (senders push)
+    download: Option<bool>,
 }
 
 /// Response
@@ -166,7 +168,8 @@ pub struct LegacyRegisterResponse {
     version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
-    download: Option<PreferDownload>,
+    /// Prefer download API (recievers pull) over upload API (senders push)
+    download: Option<bool>,
 }
 
 #[cfg(test)]
@@ -175,8 +178,7 @@ mod tests {
 
     use crate::messages::{
         common_fields::{
-            Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, PreferDownload,
-            Protocol, Version,
+            Alias, DeviceInfo, DeviceModel, DeviceType, Fingerprint, Port, Protocol, Version,
         },
         discover::MulticastCommon,
     };
@@ -207,12 +209,7 @@ mod tests {
         );
         let constructed_multicast_announce = MulticastAnnounce::new(
             Version::new("2.0".into()),
-            MulticastCommon::new(
-                device_info,
-                Port::new(53317),
-                Protocol::Https,
-                Some(PreferDownload::new(true)),
-            ),
+            MulticastCommon::new(device_info, Port::new(53317), Protocol::Https, Some(true)),
             serde_bool::True,
         );
         // Deserialize
@@ -263,7 +260,7 @@ mod tests {
                 ),
                 53317.into(),
                 Protocol::Https,
-                Some(PreferDownload::new(true)),
+                Some(true),
             ),
             None,
         );
@@ -278,7 +275,7 @@ mod tests {
                 ),
                 53317.into(),
                 Protocol::Https,
-                Some(PreferDownload::new(true)),
+                Some(true),
             ),
             Some(serde_bool::False),
         );
@@ -320,7 +317,7 @@ mod tests {
             ),
             Port::new(53317),
             Protocol::Https,
-            Some(PreferDownload::new(true)),
+            Some(true),
         );
 
         // Deserialize
@@ -351,7 +348,7 @@ mod tests {
                 DeviceType::Mobile,
                 Fingerprint::new("random string".into()),
             ),
-            Some(PreferDownload::new(true)),
+            Some(true),
         );
 
         // Deserialize

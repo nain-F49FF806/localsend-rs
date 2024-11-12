@@ -63,7 +63,7 @@ fn listen_broadcasts(device_info: DeviceInfo) -> PeersMap {
         if peer_fingerprint != device_info.fingerprint() {
             let peer_download_mode = if let Some(prefer_download_mode) = multicast_common.download()
             {
-                prefer_download_mode.clone().dissolve()
+                *prefer_download_mode
             } else {
                 false
             };
@@ -93,7 +93,7 @@ fn announce_broadcast(device_info: DeviceInfo, interval: u64) {
         device_info,
         LOCALSEND_PORT.into(),
         Protocol::Http,
-        Some(true.into()),
+        Some(true),
     ));
     let announce_string = serde_json::to_string(&self_announce).expect("fix this serialization");
     let announce_bytes = announce_string.as_bytes();
