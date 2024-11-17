@@ -15,6 +15,7 @@
 //!
 //!
 
+use derive_getters::Getters;
 use derive_more::derive::Constructor;
 use serde::{Deserialize, Serialize};
 
@@ -69,16 +70,16 @@ use super::common_fields::{DeviceInfo, FilesInfoMap, SessionId, Version};
 ///   }
 /// }
 /// ```
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
 #[serde(rename_all = "camelCase")]
-struct PreDownloadMeta {
-    info: PreDownloadMetaInfo,
+pub struct PrepareDownloadResponse {
+    info: PrepareDownloadMeta,
     session_id: SessionId,
     files: FilesInfoMap,
 }
 
-#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq)]
-struct PreDownloadMetaInfo {
+#[derive(Debug, Serialize, Deserialize, Constructor, PartialEq, Getters)]
+struct PrepareDownloadMeta {
     version: Version,
     #[serde(flatten)]
     device_info: DeviceInfo,
@@ -93,7 +94,7 @@ mod tests {
 
     use crate::messages::common_fields::{DeviceInfo, DeviceType, FileId, FileInfo, FilesInfoMap};
 
-    use super::{PreDownloadMeta, PreDownloadMetaInfo};
+    use super::{PrepareDownloadMeta, PrepareDownloadResponse};
 
     #[test]
     fn predownload_meta_deserialize_serialize() {
@@ -128,7 +129,7 @@ mod tests {
               }
             }
         );
-        let info = PreDownloadMetaInfo::new(
+        let info = PrepareDownloadMeta::new(
             "2.0".to_string().into(),
             DeviceInfo::new(
                 "Nice Orange".to_string().into(),
@@ -165,7 +166,7 @@ mod tests {
         );
         let files = FilesInfoMap::new(files_map);
         let constructed_response =
-            PreDownloadMeta::new(info, "mySessionId".to_string().into(), files);
+            PrepareDownloadResponse::new(info, "mySessionId".to_string().into(), files);
         let read_response = serde_json::from_value(response_json.clone()).unwrap();
         assert_eq!(constructed_response, read_response);
         let written_response = serde_json::to_value(constructed_response).unwrap();

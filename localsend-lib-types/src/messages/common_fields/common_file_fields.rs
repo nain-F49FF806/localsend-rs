@@ -17,7 +17,7 @@ pub struct FileId(String);
 /// Base64 encoded thumbnail for file
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 // pub(in super::super) struct FilePreview(Vec<u8>);
-pub(in super::super) struct FilePreview(String);
+pub struct FilePreview(String);
 
 /// File (extra) metadata
 ///
@@ -25,7 +25,7 @@ pub(in super::super) struct FilePreview(String);
 #[serde_as]
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct FileMeta(HashMap<String, String>);
+pub struct FileMeta(HashMap<String, String>);
 
 /// File Info
 ///
@@ -34,7 +34,7 @@ pub(in super::super) struct FileMeta(HashMap<String, String>);
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
 #[serde(rename_all = "camelCase")]
-pub(in super::super) struct FileInfo {
+pub struct FileInfo {
     id: FileId,
     file_name: String,
     size: u64,
@@ -68,7 +68,7 @@ pub(in super::super) struct FileInfo {
 ///   }
 /// ```
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct FilesInfoMap(HashMap<FileId, FileInfo>);
+pub struct FilesInfoMap(HashMap<FileId, FileInfo>);
 
 /// File upload token
 ///
@@ -85,4 +85,4 @@ pub struct FileUploadToken(String);
 ///  }
 /// ```
 #[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
-pub(in super::super) struct FilesTokenMap(HashMap<FileId, FileUploadToken>);
+pub struct FilesTokenMap(HashMap<FileId, FileUploadToken>);
