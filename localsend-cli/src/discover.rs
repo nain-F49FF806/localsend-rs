@@ -24,11 +24,13 @@ pub fn discover(discover_args: DiscoverArgs) {
     let state = load_state();
     let device_info = state.device_info;
     let announce_interval = discover_args.announce_interval();
-    let _announce_broadcast_handle = thread::spawn({
-        // Capture a clone https://stackoverflow.com/a/74817347
-        let device_info = device_info.clone();
-        move || announce_broadcast(device_info.clone(), announce_interval)
-    });
+    if !discover_args.silent() {
+        let _announce_broadcast_handle = thread::spawn({
+            // Capture a clone https://stackoverflow.com/a/74817347
+            let device_info = device_info.clone();
+            move || announce_broadcast(device_info.clone(), announce_interval)
+        });
+    };
     {
         // Similar to above. Shadow Clone in scope then capture.
         let device_info = device_info.clone();
