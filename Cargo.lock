@@ -333,27 +333,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "error_set"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f6b480d31460f72eda2955b10b81146f68e1e8ef5136d35e559939e2fde07f0"
-dependencies = [
- "error_set_impl",
-]
-
-[[package]]
-name = "error_set_impl"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d449cd125912cacf5bb583db2a4f8730bea5d625e010ec5f84a939a6740d5cec"
-dependencies = [
- "indices",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
 name = "fastrand"
 version = "2.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -812,12 +791,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indices"
-version = "0.3.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e125c680c3871dc195cfd3ff94a877a78f31d5e9c1a3a62cce82689ece14bf7"
-
-[[package]]
 name = "ipnet"
 version = "2.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -876,10 +849,10 @@ dependencies = [
  "derive-getters",
  "derive_more",
  "directories",
- "error_set",
  "localsend-lib-types",
  "multicast-socket",
  "names",
+ "path-clean",
  "reqwest",
  "serde",
  "serde-bool",
@@ -1074,6 +1047,12 @@ name = "option-ext"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
+
+[[package]]
+name = "path-clean"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "17359afc20d7ab31fdb42bb844c8b3bb1dabd7dcf7e68428492da7f16966fcef"
 
 [[package]]
 name = "percent-encoding"

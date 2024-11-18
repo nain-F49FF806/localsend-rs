@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use derive_more::derive::{Constructor, From};
+use derive_getters::Getters;
+use derive_more::derive::{AsRef, Constructor, Display, From};
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, skip_serializing_none};
 
@@ -9,13 +10,15 @@ use super::SHA256;
 /// File ID
 ///
 /// Unique ID for a unique file
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash)]
+#[derive(
+    Debug, Display, Serialize, Deserialize, Constructor, From, PartialEq, Eq, Hash, Clone, AsRef,
+)]
 pub struct FileId(String);
 
 /// File Preview
 ///
 /// Base64 encoded thumbnail for file
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 // pub(in super::super) struct FilePreview(Vec<u8>);
 pub struct FilePreview(String);
 
@@ -24,7 +27,7 @@ pub struct FilePreview(String);
 /// Optional unstructured file metadata like accessed/modified time etc
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone)]
 pub struct FileMeta(HashMap<String, String>);
 
 /// File Info
@@ -32,7 +35,7 @@ pub struct FileMeta(HashMap<String, String>);
 /// essential
 #[serde_as]
 #[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, Getters, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FileInfo {
     id: FileId,
@@ -67,7 +70,7 @@ pub struct FileInfo {
 ///     }
 ///   }
 /// ```
-#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Debug, Serialize, Deserialize, Constructor, From, PartialEq, AsRef)]
 pub struct FilesInfoMap(HashMap<FileId, FileInfo>);
 
 /// File upload token

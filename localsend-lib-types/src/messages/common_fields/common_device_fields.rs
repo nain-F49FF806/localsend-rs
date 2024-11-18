@@ -1,7 +1,7 @@
 //! Fields common to most messages
 
 use derive_getters::{Dissolve, Getters};
-use derive_more::derive::{Constructor, Display, From};
+use derive_more::derive::{AsRef, Constructor, Display, From};
 // use derive_new::new;
 use serde::{Deserialize, Serialize};
 
@@ -117,6 +117,6 @@ pub enum Protocol {
 /// Session ID
 ///
 /// A shared secret that can be used to authorise upload / download,to / from server
-#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq)]
+#[derive(Display, Debug, Serialize, Deserialize, Constructor, From, PartialEq, Clone, AsRef)]
 #[from(forward)]
 pub struct SessionId(String);
