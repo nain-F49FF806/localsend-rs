@@ -1,7 +1,8 @@
 use std::path::{Path, PathBuf};
 
+use crate::args::DownloadArgs;
+use crate::constants::FOX_USER_AGENT;
 use crate::utils::{ask_confirm, dbgr, sanitize_relative_path};
-use crate::{args::DownloadArgs, constants::APP_USER_AGENT};
 use compounderr::compose_errors as funsie_errors;
 use localsend_lib_types::messages::common_fields::{FileInfo, FilesInfoMap, SessionId};
 use localsend_lib_types::messages::download::PrepareDownloadResponse;
@@ -62,7 +63,7 @@ pub fn prepare_download_request(
     pin: Option<&str>,
 ) -> Result<PrepareDownloadResponse, _> {
     let client = reqwest::blocking::Client::builder()
-        .user_agent(APP_USER_AGENT)
+        .user_agent(FOX_USER_AGENT)
         .build()
         .unwrap();
 
