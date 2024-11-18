@@ -4,7 +4,7 @@ members = ["localsend-cli", "localsend-lib-types"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.1+localsendv2.1"
+version = "0.1.2+localsendv2.1"
 edition = "2021"
 description = "Rust library for localsend protocol https://github.com/localsend/protocol"
 repository = "https://github.com/nain-F49FF806/localsend-rs"
